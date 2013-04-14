@@ -8,17 +8,28 @@
 		<script type="text/javascript" src="js/upload.js"></script>
        <script>
 		$(function() {   
-			$('#file').fileupload({src:'upload.php'});		
+			$('#file').fileupload('upload.php');
+			
+				
 		});
-	function uploadResponse(response)
-	{
-    	for(var i=0 ;i<response.length;i++)
-    	{
-    		  element = $("<div class='image'>");
-			  image = $('<img>').attr({'src':response[i]['image']}).appendTo(element);
-			  $(element).appendTo('#preview');
-    	}
-	}
+		$(function() {   
+			$('#file1').fileupload('upload.php',{'frameId':'frame','frameName':'frame','multiple':true});		
+		});
+		
+		function uploadResponse(result)
+		{
+		
+	    	for(var i=0 ;i<result.length;i++)
+	    	{
+	    		  element = $("<div class='image'>");
+				  image = $('<img>').attr({'src':result[i]['image']}).appendTo(element);
+				  $(element).appendTo('#preview');
+	    	}
+		}
+		function GetResponse()
+		{
+			
+		}
 	
 	</script>
        
@@ -27,14 +38,23 @@
 	 /* labelvalContainer.push({"val":"<?php echo $items[$val];?>",'key':'<?php echo $val;?>'});*/
 	?>
 	<body>
-		<form method="post" enctype="multipart/form-data" action="upload.php" >
+		<form method="post" enctype="multipart/form-data" id="test">
 		<table align='center'>
 			<tr><td>Name :</td><td><input type="text" name="name" /></td></tr>
 			<tr><td>Email :</td><td><input type="text" name="email" /></td></tr>
-			<tr><td>Upload :</td><td><input type="file" name="file[]" id="file" multiple="multiple" /></td></tr>
+			<tr><td>Upload :</td><td><input type="file" name="file[]" id="file"/></td></tr>
 		</table>
 		</form>
 		<div id="preview">
 		</div>
+		
+		<form method="post" enctype="multipart/form-data">
+		<table align='center'>
+			<tr><td>Name :</td><td><input type="text" name="name" /></td></tr>
+			<tr><td>Email :</td><td><input type="text" name="email" /></td></tr>
+			<tr><td>Upload :</td><td><input type="file" name="file[]" id="file1"/></td></tr>
+		</table>
+		</form>
+		
 	</body>
 </html>		
