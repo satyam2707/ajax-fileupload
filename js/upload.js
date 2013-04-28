@@ -8,10 +8,10 @@
  */
 
 (function($){
-   var defaults =  {'frameId'   :'photoUploadIframe',
- 					'frameName' :'photoUploadIframe',
- 					'multiple'  : false ,
- 					'callBack'  :'response'
+   var defaults =  {frameId   :'photoUploadIframe',
+ 					multiple  : false ,
+ 					onComplete  : null,
+ 					beforeSend  : true ,/* set false to disable*/ 
                    };
                    
    var methods = {
@@ -23,7 +23,13 @@
 						return this.each(function(i,e){	
 							defaults.formAction = src;
 							settings =  methods.saveOptions(element,options)
-							$(this).bind('change',methods.change);
+
+							if($(this).attr('type') =='file'){
+								$(this).bind('change',methods.change);
+							}else{
+								$(this).bind('click',methods.submit);
+							}
+							
 							methods.createFrame(element);
 						  });
 					},
@@ -41,13 +47,22 @@
 						return settings;		    	
 					},
 				   /*
-					* Handle file upload on change event of file
-					*
+					* Handle file upload on change event of file (if plugin is applied to the file element)
 					*/
 			        change : function(){
 				  
 						$(this).closest('form').attr('action', $(this).data('settings').formAction).attr('target',$(this).data('settings').frameId).submit();
-						methods.progressBar();
+						methods.beforeSend(this);
+						
+				   },
+				   /*
+					* Handle file upload on submit button click (if plugin is applied to the submit element)
+					*/
+				   submit : function(){
+						
+					   methods.beforeSend(this);
+					   $(this).closest('form').attr('action', $(this).data('settings').formAction).attr('target',$(this).data('settings').frameId).submit();
+					   return false;
 				   },
 				    /*
 					* create the iframe of each file input element
@@ -55,16 +70,21 @@
 					*/
 		           createFrame :function(element){
 				       
-					   iframe = $("<iframe name='"+ $(element).data('settings').frameName + "' id='"+$(element).data('settings').frameId+"'/>")
+					   iframe = $("<iframe name='"+ $(element).data('settings').frameId + "' id='"+$(element).data('settings').frameId+"'/>")
 						   			.css({'display':'none'})
 							        .bind('load',function(){
 							        	var response = $('#'+ $(element).data('settings').frameId).contents().find('body').text();
 										if(response){
 			    							 try{
 			       								 response = $.parseJSON(response);
-			       								 
-			       								 uploadResponse(response);
-			       								 methods.clearFrame($(element).data('settings').frameId);
+			       								
+			       								 if($.isFunction($(element).data('settings').onComplete)){
+			       									$(element).data('settings').onComplete.call(element,response);
+			       								 }else{
+			       									 $.error('onComplete call back not found.Please view example scripts')
+			       									 return false;
+			       								 }
+			       						          methods.clearFrame($(element).data('settings').frameId);
 			       								  
 			       								}
 			       								 catch(e){
@@ -79,10 +99,15 @@
 				* create the iframe of each file input element
 				* @params : object element
 				*/
-	  			progressBar: function(){
+			     beforeSend: function(element){
 	  				
-	  				$('.loader').remove();
-		       		 $('<div class="loader">').html('&nbsp;').insertBefore('#preview'); 
+			    	 if($(element).data('settings').beforeSend){
+			    		 if($.isFunction($(element).data('settings').beforeSend)){
+			    			 $(element).data('settings').beforeSend.call();
+			    		 }else{
+				       		 $('<div class="loader">').html('&nbsp;').insertAfter(element); 
+			    		 }
+			    	 }
 				},
 			   /*
 			    * clear the target of the form
@@ -96,7 +121,7 @@
 			    */
 	   		    clearFrame : function(e){
 	   		    	
-			  		//$('#'+e).contents().find('body').html('');			
+			  		$('#'+e).contents().find('body').html('');			
 				}
 		
 		
