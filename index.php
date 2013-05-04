@@ -85,7 +85,7 @@
 </div>	
 
 <div class="wrapper">
-	  <h3> 2.Use single browse button to upload files </h3>
+	  <h3> 3.Use single browse button to upload multiple files </h3>
 	  <h4>This allow user to upload multiple files by clicking single button multiple times</h4>
     <script type="text/javascript">
 		$(function() {   
